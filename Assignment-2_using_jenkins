@@ -1,0 +1,40 @@
+FROM ubuntu
+WORKDIR /mnt
+RUN apt-get update && apt-get install openjdk-11-jdk maven wget git unzip -y
+EXPOSE 8080
+RUN wget https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.90/bin/apache-tomcat-9.0.90.zip
+RUN unzip apache-tomcat-9.0.90.zip
+RUN chmod -R 777 apache-tomcat-9.0.90
+WORKDIR /mnt/apache-tomcat-9.0.90/webapps/
+RUN wget https://get.jenkins.io/war-stable/2.452.2/jenkins.war
+WORKDIR /mnt/apache-tomcat-9.0.90/bin
+RUN chmod -R 777 startup.sh
+RUN ./startup.sh
+
+
+
+pipeline {
+    agent any
+    stages {
+        stage ("git") {
+            steps {
+                dir ("/mnt") {
+                    git "https://github.com/Shantanumajan6/project.git"
+                }
+            }
+        }
+        stage ("Build") {
+            steps {
+                dir ("/mnt/project/") {
+                    sh "mvn clean install"
+
+                }
+            }
+        }
+        stage ("Deploy") {
+            steps {
+                sh "cp -r /mnt/project/target/LoginWebApp.war /mnt/apache-tomcat-9.0.90/webapps/"
+            }
+        }
+    }
+}
