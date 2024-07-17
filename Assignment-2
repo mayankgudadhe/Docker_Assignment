@@ -11,4 +11,5 @@ WORKDIR /mnt/project
 RUN mvn clean install
 RUN cp -r /mnt/project/target/LoginWebApp.war /mnt/apache-tomcat-9.0.90/webapps/
 WORKDIR /mnt/apache-tomcat-9.0.90/bin
+RUN chmod -R 777 startup.sh
 RUN ./startup.sh
